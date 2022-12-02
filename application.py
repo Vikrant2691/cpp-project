@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 UPLOAD_FOLDER = 'static/images/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 SECRET_KEY = os.urandom(32)
-app = Flask(__name__)
+application = app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
@@ -235,8 +235,6 @@ def orderDetails():
 
     db.session.add(Orders(bookId=productId, userId=userResult.id))
     db.session.commit()
-
-
 
     return redirect('/')
 
