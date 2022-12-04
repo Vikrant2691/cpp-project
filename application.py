@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from s3_demo import upload_file
 
 
 UPLOAD_FOLDER = 'static/images/'
@@ -129,6 +130,7 @@ def adminHome():
             if image and allowed_file(image.filename):
                 filename = secure_filename(image.filename)
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                upload_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), "book-world-images", filename)
 
             newItem = ProductsInfo(
                 name=request.form['productName'],
