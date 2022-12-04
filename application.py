@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 from s3_demo import upload_file
 
 
+
 UPLOAD_FOLDER = 'static/images/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 SECRET_KEY = os.urandom(32)
@@ -20,8 +21,9 @@ application = app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = SECRET_KEY
 
