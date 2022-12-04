@@ -97,21 +97,42 @@ def delete_bucket(region, bucket_name):
     response = s3_client.delete_bucket(Bucket=bucket_name)
 
 
+# def imageSource(bucket):
+#     bucket = s3.Bucket(bucket)
+#     object = bucket.Object('1')
+#     tmp = tempfile.NamedTemporaryFile()
+#     with open(tmp.name, 'wb') as f:
+#         object.download_fileobj(f)
+#         src = tmp.name    #dir/subdir/2015/12/7/img01.jpg
+#         retrun src
+
+
 def main():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('bucket_name', help='The name of the bucket.')
-    parser.add_argument('--file_name', help='The name of the file to upload.')
-    parser.add_argument('--object_key', help='The object key')
+    # import argparse
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('bucket_name', help='The name of the bucket.')
+    # parser.add_argument('--file_name', help='The name of the file to upload.')
+    # parser.add_argument('--object_key', help='The object key')
 
-    region = 'eu-west-1'
+    # region = 'us-east-1'
 
-    args = parser.parse_args()
-    create_bucket(args.bucket_name, region)
+    # args = parser.parse_args()
+    # create_bucket(args.bucket_name)
     # list_buckets()
-    upload_file(args.file_name, args.bucket_name, args.object_key)
-    delete_object(region, args.bucket_name, args.object_key)
-    delete_bucket(region, args.bucket_name)
+    upload_file("static/images/2.jpg", "book-world-images", "2.jpg")
+    upload_file("static/images/3.jpg", "book-world-images", "3.jpg")
+    upload_file("static/images/4.jpg", "book-world-images", "4.jpg")
+    upload_file("static/images/5.jpg", "book-world-images", "5.jpg")
+    upload_file("static/images/6.jpg", "book-world-images", "6.jpg")
+    upload_file("static/images/7.jpg", "book-world-images", "7.jpg")
+    upload_file("static/images/8.jpg", "book-world-images", "8.jpg")
+    upload_file("static/images/9.jpg", "book-world-images", "9.jpg")
+    
+    # s3 = boto3.resource('s3')
+    # bucket = s3.Bucket('test-bucket')
+    # imageSource("book-world-images")
+    # delete_object(region, args.bucket_name, args.object_key)
+    # delete_bucket(region, args.bucket_name)
 
 
 if __name__ == '__main__':
