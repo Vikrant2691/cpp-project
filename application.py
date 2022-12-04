@@ -11,7 +11,7 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from s3_demo import upload_file
-
+from flask_migrate import Migrate
 
 
 UPLOAD_FOLDER = 'static/images/'
