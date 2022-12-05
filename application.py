@@ -12,6 +12,9 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from s3_demo import upload_file
 from flask_migrate import Migrate
+import pandas as pd
+import numpy as np
+from library import recommendations
 
 
 UPLOAD_FOLDER = 'static/images/'
@@ -48,9 +51,10 @@ class ProductsInfo(db.Model, UserMixin):
     author = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Integer)
-    link = db.Column(db.String(200), nullable=False)
-    dateaddes = db.Column(db.DateTime, default=datetime.utcnow)
+    # link = db.Column(db.String(200), nullable=False)
+    dateadded = db.Column(db.DateTime, default=datetime.utcnow)
     imageName = db.Column(db.Text, nullable=True)
+    rating = db.Column(db.Integer, nullable=True)
     description = db.Column(db.String(200), nullable=False)
 
     def __repr__(self):
@@ -64,16 +68,21 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(20), nullable=False, unique=True)
     mobile = db.Column(db.String(20), nullable=False, unique=True)
+    def __repr__(self):
+        return f'<Task : {self.id}>'
 
 # -----------------------> Table containing details of orders
 
 
 class Orders(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    bookId = db.Column(db.Integer, nullable=False, unique=True)
+    bookId = db.Column(db.Integer, nullable=False)
     orderDate = db.Column(db.DateTime, default=datetime.utcnow)
     userId = db.Column(db.String(20), nullable=False)
-    review = db.Column(db.String(200), nullable=True)
+    review = db.Column(db.Integer, nullable=True)
+
+    def __repr__(self):
+        return f'<Task : {self.id}>'
 
 
 # -------------------------> User Registration Form
@@ -132,7 +141,8 @@ def adminHome():
             if image and allowed_file(image.filename):
                 filename = secure_filename(image.filename)
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                upload_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), "book-world-images", filename)
+                upload_file(os.path.join(
+                    app.config['UPLOAD_FOLDER'], filename), "book-world-images", filename)
 
             newItem = ProductsInfo(
                 name=request.form['productName'],
@@ -222,27 +232,6 @@ def UpdateProducts():
         return render_template('Error.html', title="Access Denied!", msg="You need admin priviledges to perform this action!")
 
 
-# --------------------------> Enter order details
-@app.route('/ordersDetails', methods=['POST'])
-def orderDetails():
-
-    user = session['username']
-
-    print("Hi")
-    productId = request.form['productId']
-    productName = request.form['productName']
-    print(productId)
-    print(productName)
-    print(user)
-    userResult = User.query.filter(User.username == user).first()
-    print(userResult.id)
-
-    db.session.add(Orders(bookId=productId, userId=userResult.id))
-    db.session.commit()
-
-    return redirect('/')
-
-
 # -------------------------> User Homepage
 @app.route('/')
 def home():
@@ -257,6 +246,71 @@ def home():
     except:
         pass
     return render_template('home.html', allProducts=allProducts)
+
+
+# --------------------------> Add review details
+@app.route('/addreview', methods=['POST'])
+def addReview():
+
+    user = session['username']
+    orderId = request.form['order_id']
+    print(orderId)
+    orderReview = request.form['order_review']
+    userResult = User.query.filter(User.username == user).first()
+    # db.session.add(Orders(bookId=productId, userId=userResult.id))
+    db.session.query(Orders).filter(Orders.id == orderId).update(
+        {'review': orderReview})
+    db.session.commit()
+
+    return redirect('/myorders')
+
+
+# ---------------------------------> check user orders
+
+
+@app.route('/myorders', methods=['GET', 'POST'])
+def myorders():
+
+    if 'username' in session and session['username'] != 'None':
+
+        if request.method == 'POST':
+            image = request.files['productImage']
+            # if image and allowed_file(image.filename):
+            #     filename = secure_filename(image.filename)
+            #     image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            #     upload_file(os.path.join(
+            #         app.config['UPLOAD_FOLDER'], filename), "book-world-images", filename)
+
+            # newItem = ProductsInfo(
+            #     name=request.form['productName'],
+            #     author=request.form['productAuthor'],
+            #     description=request.form['productDescription'],
+            #     price=request.form['productPrice'],
+            #     link=request.form['productLink'],
+            #     imageName=image.filename
+            # )
+            # try:
+            #     session['productName'] = request.form['productName']
+            #     db.session.add(newItem)
+            #     db.session.commit()
+            #     flash(f'Product added successfully', 'success')
+            #     return redirect('/myorders')
+            # except:
+            #     return "There was an issue pushing to database"
+
+        else:
+            user = session['username']
+
+            userResult = User.query.filter(User.username == user).first()
+
+            myorders = db.session.query(Orders.id, ProductsInfo.name, ProductsInfo.price, Orders.orderDate, Orders.review).join(
+                (ProductsInfo, ProductsInfo.id == Orders.bookId), (User, Orders.userId == User.id)).all()
+            print(myorders)
+            return render_template('myorders.html', myorders=myorders)
+
+    else:
+        flash(f'To buy, you need to be signed up!', 'danger')
+        return redirect('/login')
 
 
 # -----------------------------> For logging in admin and normal users
@@ -353,10 +407,32 @@ def order(productid):
         return redirect('/login')
 
 
+def getPivot():
+    # orders=db.session.query(Orders)
+    # df = pd.DataFrame(orders.all())
+    df = pd.read_sql(
+        "select userId,bookId,review from orders", db.session.bind).fillna(0)
+    df = df.astype('int64')
+    # df=df['userId'].fillna(0).astype(int)
+    # df=df['bookId'].fillna(0).astype(int)
+    # df=df['review'].fillna(0).astype(int)
+
+    ratings_matrix = df.pivot(
+        index='userId', columns='bookId', values='review')
+    ratings_matrix.fillna(0, inplace=True)
+    ratings_matrix = ratings_matrix.astype(np.int32)
+    ratings_matrix.head()
+    user_recommendations=recommendations(7, ratings_matrix)
+    
+
+
 def getApp():
     return app
 
 
 if __name__ == '__main__':
+    getPivot()
     db.create_all()
+    db.init_app(app)
+    migrate.init_app(app, db)
     app.run(debug=True, host='127.0.0.1', port=5000)
