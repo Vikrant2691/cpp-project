@@ -51,7 +51,6 @@ class ProductsInfo(db.Model, UserMixin):
     author = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Integer)
-    # link = db.Column(db.String(200), nullable=False)
     dateadded = db.Column(db.DateTime, default=datetime.utcnow)
     imageName = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Integer, nullable=True)
@@ -68,6 +67,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(20), nullable=False, unique=True)
     mobile = db.Column(db.String(20), nullable=False, unique=True)
+    recommendation = db.Column(db.String(20), nullable=True)
+
     def __repr__(self):
         return f'<Task : {self.id}>'
 
@@ -236,16 +237,24 @@ def UpdateProducts():
 @app.route('/')
 def home():
     allProducts = []
+    productsImageList = []
     # Adding a username in session with value if doesn't exists any.
     if 'username' not in session:
         session['username'] = 'None'
         session['logged_in'] = False
-
+    else:
+        user = session['username']
     try:
         allProducts = ProductsInfo.query.all()
+        userResult = User.query.filter(User.username == user).first()
+        recommendations = userResult.recommendation.split(",")
+        # print(recommendations)
+        productsResult =db.session.query(ProductsInfo.imageName).filter(ProductsInfo.id.in_(recommendations)).all()
+        productsImageList= [op.imageName for op in productsResult]
+        print(productsImageList)
     except:
         pass
-    return render_template('home.html', allProducts=allProducts)
+    return render_template('home.html', allProducts=allProducts, productsImageList=productsImageList)
 
 
 # --------------------------> Add review details
@@ -407,7 +416,7 @@ def order(productid):
         return redirect('/login')
 
 
-def getPivot():
+def updateRecommendations(userId):
     # orders=db.session.query(Orders)
     # df = pd.DataFrame(orders.all())
     df = pd.read_sql(
@@ -422,8 +431,11 @@ def getPivot():
     ratings_matrix.fillna(0, inplace=True)
     ratings_matrix = ratings_matrix.astype(np.int32)
     ratings_matrix.head()
-    user_recommendations=recommendations(7, ratings_matrix)
-    
+    user_recommendations = recommendations(userId, ratings_matrix)
+    print(user_recommendations)
+    db.session.query(User).filter(User.id == userId).update(
+        {'recommendation': user_recommendations})
+    db.session.commit()
 
 
 def getApp():
@@ -431,8 +443,8 @@ def getApp():
 
 
 if __name__ == '__main__':
-    getPivot()
     db.create_all()
     db.init_app(app)
     migrate.init_app(app, db)
+    # updateRecommendations(5)
     app.run(debug=True, host='127.0.0.1', port=5000)

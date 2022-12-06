@@ -21,7 +21,6 @@ k = 3
 
 
 def recommendItem(userId, ratings, metric=metric, recommendtype=2):
-    print(ratings.columns.get_loc(1))
     if (userId not in ratings.index.values) or type(userId) is not int:
         print("User id should be a valid integer from this list :")
     else:
@@ -38,8 +37,10 @@ def recommendItem(userId, ratings, metric=metric, recommendtype=2):
         prediction = prediction.sort_values(ascending=False)
         # print(prediction)
         recommended = prediction[:3]
+
+        recommended_books=','.join(str(item) for item in set(recommended.to_list()))
         
-        return ','.join(str(item) for item in set(recommended.to_list()))
+        return recommended_books
         
 
 def predict_userbased(user_id, item_id, ratings, metric=metric, k=k):
@@ -91,4 +92,4 @@ def findksimilarusers(user_id, ratings, metric=metric, k=k):
 
 
 def recommendations(userid, ratings_matrix):
-    recommendItem(userid, ratings_matrix, 'cosine', 2)
+    return recommendItem(userid, ratings_matrix, 'cosine', 2)
