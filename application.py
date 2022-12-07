@@ -160,17 +160,15 @@ def adminHome():
                 author=request.form['productAuthor'],
                 description=request.form['productDescription'],
                 price=request.form['productPrice'],
-                link=request.form['productLink'],
-                imageName='60606325jpg'
+                imageName=image.filename
             )
-            try:
-                session['productName'] = request.form['productName']
-                db.session.add(newItem)
-                db.session.commit()
-                flash(f'Product added successfully', 'success')
-                return redirect('/admin')
-            except:
-                return "There was an issue pushing to database"
+            
+            session['productName'] = request.form['productName']
+            db.session.add(newItem)
+            db.session.commit()
+            flash(f'Product added successfully', 'success')
+            return redirect('/admin')
+            
 
         # --------------------> For admin to display all the stored products
         else:
@@ -463,9 +461,8 @@ def productTest():
     newItem = ProductsInfo(name='productName',
     author='productAuthor',
     description='productDescription',
-    price='productPrice',
-    link='productLink',
-    imageName='60606325jpg')
+    price=14.67,
+    imageName='60606325.jpg')
     db.session.add(newItem)
     db.session.commit()
         
@@ -474,10 +471,9 @@ def productTest():
 
 if __name__ == '__main__':
     
-    productTest()
-    # db.create_all()
-    # db.init_app(app)
-    # migrate.init_app(app, db)
+    db.create_all()
+    db.init_app(app)
+    migrate.init_app(app, db)
     # updateRecommendations(5)
     # app.run(debug=True, host='127.0.0.1', port=5000)
-    # app.run(debug=True, host='0.0.0.0', port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8080)

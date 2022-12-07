@@ -119,7 +119,7 @@ def main():
     # args = parser.parse_args()
     # create_bucket(args.bucket_name)
     # list_buckets()
-    upload_file("database.db", "book-world-db", "database.db")
+    upload_file("static/images/60606325.jpg", "book-world-images", "60606325.jpg")
     
     # s3 = boto3.resource('s3')
     # bucket = s3.Bucket('test-bucket')
