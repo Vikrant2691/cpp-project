@@ -60,7 +60,7 @@ class ProductsInfo(db.Model, UserMixin):
     description = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Integer)
     dateadded = db.Column(db.DateTime, default=datetime.utcnow)
-    imageName = db.Column(db.Text, nullable=True)
+    imageName = db.Column(db.String(200), nullable=True)
     rating = db.Column(db.Integer, nullable=True)
     description = db.Column(db.String(200), nullable=False)
 
@@ -152,14 +152,16 @@ def adminHome():
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 upload_file(os.path.join(
                     app.config['UPLOAD_FOLDER'], filename), "book-world-images", filename)
+            print("----------------------------------------")
             print(image.filename)
+            print("----------------------------------------")
             newItem = ProductsInfo(
                 name=request.form['productName'],
                 author=request.form['productAuthor'],
                 description=request.form['productDescription'],
                 price=request.form['productPrice'],
                 link=request.form['productLink'],
-                imageName=image.filename
+                imageName='60606325jpg'
             )
             try:
                 session['productName'] = request.form['productName']
@@ -396,16 +398,8 @@ def signup():
             try:
                 hashed_password = bcrypt.generate_password_hash(
                     form.password.data, 12).decode('utf-8')
-                print(form.username.data)
-                print(hashed_password)
-                print(form.email.data)
-                print(form.mobile.data)
                 new_user = User(username=form.username.data, password=hashed_password,
                                 email=form.email.data, mobile=form.mobile.data)
-                print(new_user.username)
-                print(new_user.password)
-                print(new_user.email)
-                print(new_user.mobile)
                 db.session.add(new_user)
                 db.session.commit()
                 flash(f'You have signed up successfully. Please login now.', 'success')
@@ -464,11 +458,26 @@ def updateRecommendations(userId):
 
 def getApp():
     return app
+    
+def productTest():
+    newItem = ProductsInfo(name='productName',
+    author='productAuthor',
+    description='productDescription',
+    price='productPrice',
+    link='productLink',
+    imageName='60606325jpg')
+    db.session.add(newItem)
+    db.session.commit()
+        
+
 
 
 if __name__ == '__main__':
-    db.create_all()
-    db.init_app(app)
-    migrate.init_app(app, db)
+    
+    productTest()
+    # db.create_all()
+    # db.init_app(app)
+    # migrate.init_app(app, db)
     # updateRecommendations(5)
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    # app.run(debug=True, host='127.0.0.1', port=5000)
+    # app.run(debug=True, host='0.0.0.0', port=8080)
