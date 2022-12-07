@@ -1,3 +1,4 @@
+from sqlalchemy import create_engine
 import os
 from flask import Flask, url_for, redirect, request, flash, session
 from flask.templating import render_template
@@ -15,24 +16,27 @@ from flask_migrate import Migrate
 import pandas as pd
 import numpy as np
 from library import recommendations
-from sqlalchemy.dialects import registry
+
+from sqlalchemy.dialects import postgresql
 
 
-registry.register("s3sqlite", "sqlalchemy-s3sqlite.dialect", "S3SQLiteDialect")
-os.environ['S3SQLite_bucket'] = 'book-world-db'
+# from sqlalchemy.dialects import registry
+# registry.register("s3sqlite", "sqlalchemy-s3sqlite.dialect", "S3SQLiteDialect")
+# os.environ['S3SQLite_bucket'] = 'book-world-db'
 
+application = app = Flask(__name__)
 UPLOAD_FOLDER = 'static/images/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 SECRET_KEY = os.urandom(32)
-application = app = Flask(__name__)
+app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:12345678@database-1.cuxbcbbcz4bk.us-east-1.rds.amazonaws.com/postgres'
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SECRET_KEY'] = SECRET_KEY
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -250,11 +254,13 @@ def home():
         user = session['username']
     try:
         allProducts = ProductsInfo.query.all()
+        print(allProducts)
         userResult = User.query.filter(User.username == user).first()
         recommendations = userResult.recommendation.split(",")
         # print(recommendations)
-        productsResult =db.session.query(ProductsInfo.imageName).filter(ProductsInfo.id.in_(recommendations)).all()
-        productsImageList= [op.imageName for op in productsResult]
+        productsResult = db.session.query(ProductsInfo.imageName).filter(
+            ProductsInfo.id.in_(recommendations)).all()
+        productsImageList = [op.imageName for op in productsResult]
         print(productsImageList)
     except:
         pass
@@ -389,9 +395,17 @@ def signup():
         else:
             try:
                 hashed_password = bcrypt.generate_password_hash(
-                    form.password.data, 12)
+                    form.password.data, 12).decode('utf-8')
+                print(form.username.data)
+                print(hashed_password)
+                print(form.email.data)
+                print(form.mobile.data)
                 new_user = User(username=form.username.data, password=hashed_password,
                                 email=form.email.data, mobile=form.mobile.data)
+                print(new_user.username)
+                print(new_user.password)
+                print(new_user.email)
+                print(new_user.mobile)
                 db.session.add(new_user)
                 db.session.commit()
                 flash(f'You have signed up successfully. Please login now.', 'success')
