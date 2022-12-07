@@ -424,10 +424,16 @@ def order(productid):
     if 'username' in session and session['username'] != 'None':
         try:
             productDetails = ProductsInfo.query.get_or_404(productid)
-            print(productDetails.imageName)
+            print(productDetails.id)
+            print(productDetails.name)
+            print(productDetails.author)
+            print(productDetails.description)
+            print(productDetails.price)
+            print(productDetails.dateadded)
+            print(productDetails.rating)
             return render_template('order.html', productDetails=productDetails)
         except:
-            #!!! Product not found Warning must show up
+            print("something wrong")
             return redirect('/')
     else:
         flash(f'To buy, you need to be signed up!', 'danger')
