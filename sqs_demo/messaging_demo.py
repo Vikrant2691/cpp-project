@@ -27,38 +27,38 @@ def main():
     if args.create_queue:
         my_queue.create_queue(args.queue_name)
     
-    # create multiple threads to simulate the interaction of the producer and consumer with the queue
-    thread1 = Thread(target=a_consumer.consume_message, args=(args.queue_name,))
+    # # create multiple threads to simulate the interaction of the producer and consumer with the queue
+    # thread1 = Thread(target=a_consumer.consume_message, args=(args.queue_name,))
        
-    message1 = "Hi there!"
-    thread2 = Thread(target=a_producer.send_message, args=(args.queue_name, message1))
+    # message1 = "Hi there!"
+    # thread2 = Thread(target=a_producer.send_message, args=(args.queue_name, message1))
     
-    message2 = '{"artist": "Pink Floyd","song": "Us and Them"}'
-    thread3 = Thread(target=a_producer.send_message, args=(args.queue_name, message2))
+    # message2 = '{"artist": "Pink Floyd","song": "Us and Them"}'
+    # thread3 = Thread(target=a_producer.send_message, args=(args.queue_name, message2))
     
-    message3 = '{"artist": "Pink Floyd","song": "Another Brick in the Wall"}'
-    thread4 = Thread(target=a_producer.send_message, args=(args.queue_name, message3))
+    # message3 = '{"artist": "Pink Floyd","song": "Another Brick in the Wall"}'
+    # thread4 = Thread(target=a_producer.send_message, args=(args.queue_name, message3))
     
-    thread5 = Thread(target=a_consumer.consume_message, args=(args.queue_name,))
+    # thread5 = Thread(target=a_consumer.consume_message, args=(args.queue_name,))
     
-    thread1.start()
-    thread2.start()
-    thread3.start()
-    thread4.start()
-    thread5.start()
+    # thread1.start()
+    # thread2.start()
+    # thread3.start()
+    # thread4.start()
+    # thread5.start()
     
   
-    thread1.join()
-    thread2.join()
-    thread3.join()
-    thread4.join()
-    thread5.join()
+    # thread1.join()
+    # thread2.join()
+    # thread3.join()
+    # thread4.join()
+    # thread5.join()
     
-    if args.delete_queue:
-        print('\n{} is being deleted!.'.format(args.queue_name))
-        my_queue.delete_queue(args.queue_name)
-    else:
-        print('\n{} will not be deleted.'.format(args.queue_name))
+    # if args.delete_queue:
+    #     print('\n{} is being deleted!.'.format(args.queue_name))
+    #     my_queue.delete_queue(args.queue_name)
+    # else:
+    #     print('\n{} will not be deleted.'.format(args.queue_name))
       
     
     

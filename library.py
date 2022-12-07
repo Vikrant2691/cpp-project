@@ -3,6 +3,10 @@ import sys
 import os
 import re
 import pandas as pd
+import sklearn.metrics as metrics
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+from sklearn.metrics.pairwise import pairwise_distances
 
 
 metric = 'cosine'
@@ -13,7 +17,6 @@ def recommendItem(userId, ratings, metric=metric, recommendtype=2):
     if (userId not in ratings.index.values) or type(userId) is not int:
         print("User id should be a valid integer from this list :")
     else:
-        clear_output(wait=True)
         prediction = []
 
         for i in range(ratings.shape[1]):
