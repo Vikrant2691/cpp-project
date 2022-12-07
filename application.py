@@ -152,7 +152,7 @@ def adminHome():
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 upload_file(os.path.join(
                     app.config['UPLOAD_FOLDER'], filename), "book-world-images", filename)
-
+            print(image.filename)
             newItem = ProductsInfo(
                 name=request.form['productName'],
                 author=request.form['productAuthor'],
