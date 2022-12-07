@@ -58,7 +58,7 @@ class ProductsInfo(db.Model, UserMixin):
     name = db.Column(db.String(200), nullable=False)
     author = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(200), nullable=False)
-    price = db.Column(db.Integer)
+    price = db.Column(db.Numeric(5,2))
     dateadded = db.Column(db.DateTime, default=datetime.utcnow)
     imageName = db.Column(db.String(200), nullable=True)
     rating = db.Column(db.Integer, nullable=True)
@@ -87,7 +87,7 @@ class Orders(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     bookId = db.Column(db.Integer, nullable=False)
     orderDate = db.Column(db.DateTime, default=datetime.utcnow)
-    userId = db.Column(db.String(20), nullable=False)
+    userId = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
