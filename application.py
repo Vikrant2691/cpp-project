@@ -414,7 +414,7 @@ def signup():
 @app.route('/order/<int:productid>')
 def order(productid):
     if 'username' in session and session['username'] != 'None':
-        try:
+        # try:
             productDetails = ProductsInfo.query.get_or_404(productid)
             print(productDetails.id)
             print(productDetails.name)
@@ -424,9 +424,9 @@ def order(productid):
             print(productDetails.dateadded)
             print(productDetails.rating)
             return render_template('order.html', productDetails=productDetails)
-        except:
-            print("something wrong")
-            return redirect('/')
+        # except:
+        #     print("something wrong")
+        #     return redirect('/')
     else:
         flash(f'To buy, you need to be signed up!', 'danger')
         return redirect('/login')
@@ -467,6 +467,27 @@ def productTest():
     db.session.commit()
         
 
+# --------------------------> Enter order details
+@app.route('/ordersDetails', methods=['POST'])
+def orderDetails():
+
+    user = session['username']
+
+    print("Hi")
+    productId = request.form['productId']
+    productName = request.form['productName']
+    print(productId)
+    print(productName)
+    print(user)
+    userResult = User.query.filter(User.username == user).first()
+    print(userResult.id)
+
+    db.session.add(Orders(bookId=productId, userId=userResult.id))
+    db.session.commit()
+
+
+
+    return redirect('/')
 
 
 if __name__ == '__main__':
