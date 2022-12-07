@@ -438,7 +438,7 @@ def updateRecommendations(userId):
     # orders=db.session.query(Orders)
     # df = pd.DataFrame(orders.all())
     df = pd.read_sql(
-        "select userId,bookId,review from orders", db.session.bind).fillna(0)
+        "select \"userId\",\"bookId\",review from orders", db.session.bind).fillna(0)
     df = df.astype('int64')
     # df=df['userId'].fillna(0).astype(int)
     # df=df['bookId'].fillna(0).astype(int)
@@ -461,8 +461,8 @@ def getApp():
 
 
 if __name__ == '__main__':
-    db.create_all()
-    db.init_app(app)
-    migrate.init_app(app, db)
-    # updateRecommendations(5)
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    # db.create_all()
+    # db.init_app(app)
+    # migrate.init_app(app, db)
+    updateRecommendations(5)
+    # app.run(debug=True, host='127.0.0.1', port=5000)
