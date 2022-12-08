@@ -16,6 +16,8 @@ from flask_migrate import Migrate
 import pandas as pd
 import numpy as np
 from library import recommendations
+from publisher import Publisher
+from producer import Producer
 
 from sqlalchemy.dialects import postgresql
 
@@ -274,11 +276,16 @@ def addReview():
     user = session['username']
     orderId = request.form['order_id']
     print(orderId)
+    
     orderReview = request.form['order_review']
     userResult = User.query.filter(User.username == user).first()
     # db.session.add(Orders(bookId=productId, userId=userResult.id))
     db.session.query(Orders).filter(Orders.id == orderId).update(
         {'review': orderReview})
+    a_producer = Producer()
+    print("{\"userid\":"+str(userResult.id)+"}")
+    packet="{\"userid\":"+str(userResult.id)+"}"
+    a_producer.send_message("book-orders-q",packet)
     db.session.commit()
 
     return redirect('/myorders')
@@ -325,6 +332,7 @@ def myorders():
             myorders = db.session.query(Orders.id, ProductsInfo.name, ProductsInfo.price, Orders.orderDate, Orders.review).join(
                 (ProductsInfo, ProductsInfo.id == Orders.bookId), (User, Orders.userId == User.id)).all()
             print(myorders)
+            
             return render_template('myorders.html', myorders=myorders)
 
     else:
@@ -472,16 +480,13 @@ def productTest():
 def orderDetails():
 
     user = session['username']
+    order_publisher = Publisher()
 
-    print("Hi")
     productId = request.form['productId']
     productName = request.form['productName']
-    print(productId)
-    print(productName)
-    print(user)
+    order_publisher.publish_message("order-notification", "Order confirmation for book :"+productName)
     userResult = User.query.filter(User.username == user).first()
-    print(userResult.id)
-
+    
     db.session.add(Orders(bookId=productId, userId=userResult.id))
     db.session.commit()
 
