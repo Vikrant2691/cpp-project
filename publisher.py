@@ -18,7 +18,7 @@ class Publisher:
     def publish_message(self, topic_name, my_message):
         
         try:
-           sns_client = boto3.client('sns')
+           sns_client = boto3.client('sns',region_name='us-east-1')
            print('\npublishing the message {} to the SNS topic {}...\n'.format(my_message, topic_name))
            # recall that if the topic already exists, the create_topic() method returns that topic's ARN
            response = sns_client.create_topic(Name=topic_name)
@@ -44,7 +44,7 @@ class Publisher:
     def send_SMS_message(self, mobile, my_message):
         
         try:
-            sns_client = boto3.client('sns')
+            sns_client = boto3.client('sns',region_name='us-east-1')
             print('\ndelivering the message {} to {}...\n'.format(my_message, mobile))
             # use the method publish() of the SNS Client API to deliver a message to a specified phone
             sns_client.publish(PhoneNumber=mobile, Message=my_message)

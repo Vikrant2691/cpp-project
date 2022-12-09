@@ -12,7 +12,7 @@ class Producer:
         try:
             # Create a session and use it to make our client
             session = boto3.session.Session()
-            sqs_client = session.client('sqs')
+            sqs_client = session.client('sqs',region_name='us-east-1')
             # sqs_client = boto3.client('sqs')
             # retrive the URL of an existing Amazon SQS queue
             response = sqs_client.get_queue_url(QueueName=queue_name)
