@@ -330,7 +330,7 @@ def myorders():
             userResult = User.query.filter(User.username == user).first()
 
             myorders = db.session.query(Orders.id, ProductsInfo.name, ProductsInfo.price, Orders.orderDate, Orders.review).join(
-                (ProductsInfo, ProductsInfo.id == Orders.bookId), (User, Orders.userId == User.id)).all()
+                (ProductsInfo, ProductsInfo.id == Orders.bookId), (User, Orders.userId == User.id)).filter(User.id == userResult.id).all()
             print(myorders)
             
             return render_template('myorders.html', myorders=myorders)
